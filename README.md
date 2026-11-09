@@ -15,7 +15,7 @@ existing Nemo finite field.
 
 ## Ecosystem notes 
 
-Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's reasearch has included
+Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code included
 Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the general-purpose Schoof
 implementation of `schoof` implemented here.
 
