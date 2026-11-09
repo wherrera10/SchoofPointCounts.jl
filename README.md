@@ -29,4 +29,4 @@ using Pkg
 Pkg.add(url = "https://github.com/wherrera10/SchoofPointCounts.jl")
 ```
 
-Requires Julia 1.10 or later, plus [Nemo.jl](https://github.com/Nemocas/Nemo.jl), which should be added automatically.
+Requires Julia 1.10 or later, plus Primes.jl and [Nemo.jl](https://github.com/Nemocas/Nemo.jl), which should be added automatically.
