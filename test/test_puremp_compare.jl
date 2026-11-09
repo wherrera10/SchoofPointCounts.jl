@@ -1,8 +1,11 @@
+""" This file tests a Rust Schoof implementation against the Julia code's implementation of Schoof. """
+
 using Test
 using Random
 using Primes
 
 # Compares SchoofPointCounts.schoof against the Rust crate `puremp`
+# Rust must be installed and reachable to build the testing harness below.
 # (EllipticCurve::schoof_point_count and ::sea_point_count) through the small CLI in
 # puremp_compare/. puremp only supports prime fields GF(p), so only those are compared.
 
