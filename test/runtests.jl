@@ -1,5 +1,5 @@
 """
-    This test file runs the code against precomputed known values. For further testing yoiu may want to
+    This test file runs the code against precomputed known values. For further testing you may want to
     run the test_pureemp_compare,jl file, which requires Rust to ber installed.
 """
 
