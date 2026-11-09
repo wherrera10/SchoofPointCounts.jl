@@ -1,10 +1,7 @@
 using Test
 using Nemo
-
-include("SchoofPointCounts.jl")
-import .SchoofPointCounts
-const S = SchoofPointCounts
-
+using SchoofPointCounts
+const S = SchoofPointCounts # shorthand to reference nonexported functions
 
 """ Independent direct point count over any finite field (no Schoof code involved). """
 function bruteforce(A, B)
