@@ -1,6 +1,6 @@
 """
     This test file runs the code against precomputed known values. For further testing you may want to
-    run the test_pureemp_compare,jl file, which requires Rust to ber installed.
+    also run the test_pureemp_compare.jl file in this directory (requires Rust to be installed).
 """
 
 using Test
