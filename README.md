@@ -15,9 +15,10 @@ existing Nemo finite field.
 
 ## Ecosystem notes 
 
-Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code included
-Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the general-purpose Schoof
-implementation of `schoof` implemented here.
+Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research 
+code included Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the
+general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl uses calls to the PARI library to
+provide a call to a Schoof–Atkin–Elkies algorithm for its order() function.
 
 ## Installation
 
