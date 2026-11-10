@@ -9,7 +9,7 @@ schoof(A::Nemo.FinFieldElem, B::Nemo.FinFieldElem)::Integer # Both arguments are
 ```
 
 Both methods return the number of points on the curve
-`y^2 = x^3 + A*x + B` over a finite field. The integer method takes a prime-power field order integer `q = p^k` and integer coefficients `A` and `B`, which are interpreted in the prime subfield. The two-argument method takes coefficients from the same existing Nemo finite field. The field characteristic must be greater than 3, and the curve must be nonsingular.
+`y^2 = x^3 + A*x + B` over a finite field. The integer method takes a prime-power field order integer `q = p^k` and integer coefficients `A` and `B`, which are interpreted in the prime subfield. The two-argument method takes coefficients from the same existing Nemo finite field. The field characteristic must be greater than 3, and the curve must be nonsingular, or an argument error will be thrown.
 
 For example, to count the points on elliptic curve
 
@@ -30,7 +30,7 @@ Note that the return value is the number of points on the projective elliptic cu
 
 ## Ecosystem notes
 
-Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code included Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl uses calls to the PARI library to provide a call to a Schoof–Atkin–Elkies algorithm for its order() function.
+Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code includes Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl uses calls to the PARI library to provide a call to a Schoof–Atkin–Elkies algorithm for its order() function.
 
 ## Installation
 
