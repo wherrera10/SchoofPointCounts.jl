@@ -1,18 +1,28 @@
 # SchoofPointCounts
 
-Schoof's algorithm for counting prime field elliptic curve points. Uses Nemo's finite fields.
+SchoofPointCounts implements Schoof's algorithm for counting points on elliptic
+curves over finite fields, using Nemo.jl.
 
 ```julia
 schoof(A, B, q) -> Integer
 schoof(A::FinFieldElem, B::FinFieldElem) -> Integer
 ```
 
-Return `#E(Fq)` for `y^2 = x^3 + A*x + B`, the usual prime order elliptical curve in cryptography.
+Both methods return the number of points on the curve
+`y^2 = x^3 + A*x + B` over a finite field. The integer method takes a
+prime-power field order `q = p^k` and integer coefficients `A` and `B`, which
+are interpreted in the prime subfield. The two-argument method takes
+coefficients from the same existing Nemo finite field. The field
+characteristic must be greater than 3, and the curve must be nonsingular.
 
-The return value will be an integer, generally Int or BigInt depending on the size of the result.
+For example, count the points on `y^2 = x^3 + x + 1` over `F_5`:
 
-The integer interface for `schoof` accepts a prime-power order `q = p^k` and accepts arguments A and B as integer
-coefficients in the prime subfield. The finite-field interface accepts coefficients in an existing Nemo finite field.
+```julia
+julia> using SchoofPointCounts
+
+julia> schoof(1, 1, 5)
+9
+```
 
 ## Ecosystem notes 
 
