@@ -14,6 +14,7 @@ using Primes
 
 export schoof
 
+
 """
     schoof(A, B, q) -> Integer
     schoof(A::FinFieldElem, B::FinFieldElem) -> Integer
@@ -350,5 +351,6 @@ function sqrtmod(a, ℓ)
     end
     error("$a is not a square modulo $ℓ")
 end
+
 
 end # module SchoofPointCounts
