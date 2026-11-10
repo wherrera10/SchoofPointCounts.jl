@@ -13,10 +13,16 @@ function bruteforce(A, B)
     F = parent(A)
     q = BigInt(order(F))
     p = Int(characteristic(F))
-    d = round(Int, log(p, q))
+    d = 0
+    nq = q
+    while nq > 1 && nq % p == 0
+        nq ÷= p
+        d += 1
+    end
+    nq == 1 || error("field order is not a power of characteristic")
     g = gen(F)
     n = 1 # point at infinity
-    for coeffs in Iterators.product(ntuple(_ -> 0:p-1, d)...)
+    for coeffs in Iterators.product(ntuple(_ -> 0:(p-1), d)...)
         x = sum(F(c) * g^(i - 1) for (i, c) in enumerate(coeffs))
         r = x^3 + A*x + B
         n += iszero(r) ? 1 : (r^((q - 1) ÷ 2) == 1 ? 2 : 0)
@@ -28,13 +34,12 @@ primefield(p) = finite_field(p, 1, "a")[1]
 
 @testset "Schoof point counting" begin
     @testset "direct comparison, prime fields" begin
-        for (p, A, B) in [(5,1,1), (7,2,3), (11,1,6), (13,1,2), (97,2,3), (101,1,1),
-                          (1009,2,3), (10007,-3,4), (65537,3,8)]
+        for (p, A, B) in [(5, 1, 1), (7, 2, 3), (11, 1, 6), (13, 1, 2), (97, 2, 3), (101, 1, 1),
+            (1009, 2, 3), (10007, -3, 4), (65537, 3, 8)]
             F = primefield(p)
             @test S.schoof(A, B, p) == bruteforce(F(A), F(B))
         end
     end
-
     @testset "direct comparison, extension fields" begin
         for (p, k) in [(5, 2), (7, 2), (5, 3)]
             F, a = finite_field(p, k, "a")
@@ -46,7 +51,6 @@ primefield(p) = finite_field(p, 1, "a")[1]
         @test S.schoof(1, 1, 25) == bruteforce(finite_field(5, 2, "a")[1](1), finite_field(5, 2, "a")[1](1))
         @test S.schoof(2, 3, 49) isa Integer
     end
-
     @testset "input validation" begin
         @test_throws ArgumentError S.schoof(1, 1, 8)    # characteristic 2
         @test_throws ArgumentError S.schoof(1, 1, 9)    # characteristic 3
@@ -55,7 +59,6 @@ primefield(p) = finite_field(p, 1, "a")[1]
         @test_throws ArgumentError S.schoof(-3, 2, 101) # x³-3x+2 = (x-1)²(x+2), singular
         @test_throws ArgumentError S.schoof(1, 1, 15)   # not a prime power
     end
-
     @testset "CRT bound and reconstruction" begin
         for q in (5, 7, 101, 10007, big(10)^30 + 57), p in (5, 7, 11)
             Sset, M = S.auxiliaryprimes(p, q)
@@ -67,20 +70,19 @@ primefield(p) = finite_field(p, 1, "a")[1]
         q = 101
         _, M = S.auxiliaryprimes(11, q)
         Sset, _ = S.auxiliaryprimes(11, q)
-        for t in -2*isqrt(q)-1:2*isqrt(q)+1
+        for t in (-2*isqrt(q)-1):(2*isqrt(q)+1)
             cong = [(2, mod(t, 2))]
             append!(cong, [(ℓ, mod(t, ℓ)) for ℓ in Sset])
             @test S.reconstruct_trace(cong) == t
         end
     end
-
     @testset "division polynomials" begin
         F = primefield(10007)
         R, X = polynomial_ring(F, "X")
         for (A, B) in [(2, 3), (5, 7), (-3, 4)]
             a, b = F(A), F(B)
             @test S.divisionpolynomial(5, a, b, R) == 5X^12 + 62a*X^10 + 380b*X^9 - 105a^2*X^8 +
-                240a*b*X^7 + (-300a^3 - 240b^2)*X^6 - 696a^2*b*X^5 + (-125a^4 - 1920a*b^2)*X^4 +
+                    240a*b*X^7 + (-300a^3 - 240b^2)*X^6 - 696a^2*b*X^5 + (-125a^4 - 1920a*b^2)*X^4 +
                 (-80a^3*b - 1600b^3)*X^3 + (-50a^5 - 240a^2*b^2)*X^2 +
                 (-100a^4*b - 640a*b^3)*X + (a^6 - 32a^3*b^2 - 256b^4)
             for ℓ in (3, 5, 7, 11, 13)
@@ -97,14 +99,15 @@ primefield(p) = finite_field(p, 1, "a")[1]
         affine_add(P, Q) = begin
             P === nothing && return Q
             Q === nothing && return P
-            x1, y1 = P; x2, y2 = Q
+            x1, y1 = P
+            x2, y2 = Q
             x1 == x2 && (y1 + y2) % p == 0 && return nothing
             m = x1 == x2 ? (3x1^2 + A) * invmod(2y1, p) : (y2 - y1) * invmod(x2 - x1, p)
             m = mod(m, p)
             x3 = mod(m^2 - x1 - x2, p)
             (x3, mod(m * (x1 - x3) - y1, p))
         end
-        pts = [(x, y) for x in 0:p-1 for y in 0:p-1 if mod(y^2 - x^3 - A*x - B, p) == 0]
+        pts = [(x, y) for x in 0:(p-1) for y in 0:(p-1) if mod(y^2 - x^3 - A*x - B, p) == 0]
         for ℓ in (3, 5, 7, 11, 13)
             ψ = S.divisionpolynomial(ℓ, Fp(A), Fp(B), Rp)
             for P in pts
@@ -118,7 +121,65 @@ primefield(p) = finite_field(p, 1, "a")[1]
             end
         end
     end
+    @testset "Hasse bound" begin
+        for (p, A, B) in [
+            (5, 1, 1), (7, 2, 3), (11, 1, 6),
+            (13, 1, 2), (97, 2, 3), (101, 1, 1),
+            (1009, 2, 3), (10007, -3, 4)
+        ]
+            n = S.schoof(A, B, p)
+            t = BigInt(p) + 1 - n
+            @test t^2 <= 4p
+        end
+    end
+    @testset "CRT invalid inputs" begin
+        @test_throws ArgumentError S.reconstruct_trace([])
+        @test_throws ArgumentError S.reconstruct_trace([(1, 0)])
+        @test_throws ArgumentError S.reconstruct_trace([(2, 0), (4, 1)])
+    end
+    @testset "quadratic twists" begin
+        for p in (7, 11, 13, 17, 19, 23, 29, 31)
+            F = primefield(p)
+            d = findfirst(x -> powermod(x, (p - 1) ÷ 2, p) == p - 1, 2:(p-1))
+            d === nothing && continue
+            d += 1
 
+            for (A, B) in ((1, 1), (2, 3), (3, 5))
+                a, b = F(A), F(B)
+                iszero(4a^3 + 27b^2) && continue
+
+                At = a * F(d)^2
+                Bt = b * F(d)^3
+                iszero(4At^3 + 27Bt^2) && continue
+
+                n1 = S.schoof(a, b)
+                n2 = S.schoof(At, Bt)
+                t1 = p + 1 - n1
+                t2 = p + 1 - n2
+
+                @test t2 == -t1
+            end
+        end
+    end
+    @testset "quadratic extension trace identity" begin
+        for p in (5, 7, 11, 13, 17, 19, 23)
+            Fp = primefield(p)
+            Fp2, _ = finite_field(p, 2, "a")
+
+            for (A, B) in ((1, 1), (2, 3), (3, 5))
+                a, b = Fp(A), Fp(B)
+                iszero(4a^3 + 27b^2) && continue
+
+                n1 = S.schoof(a, b)
+                t1 = BigInt(p) + 1 - n1
+
+                n2 = S.schoof(Fp2(A), Fp2(B))
+                t2 = BigInt(p)^2 + 1 - n2
+
+                @test t2 == t1^2 - 2p
+            end
+        end
+    end
     @testset "polynomial inversion and zero divisors" begin
         F = primefield(101)
         R, X = polynomial_ring(F, "X")
@@ -129,7 +190,6 @@ primefield(p) = finite_field(p, 1, "a")[1]
         u = X + 2
         @test mod(u * S.inv_mod(u, ψ), ψ) == 1
     end
-
     @testset "point arithmetic" begin
         F = primefield(101)
         R, X = polynomial_ring(F, "X")
@@ -143,10 +203,34 @@ primefield(p) = finite_field(p, 1, "a")[1]
         @test S.scalarmul(P, 3, A, f, ψ) === nothing
         @test S.scalarmul(P, -2, A, f, ψ) == S.ecneg(S.scalarmul(P, 2, A, f, ψ))
     end
+    @testset "factor refinement preserves the global trace" begin
+        p, A0, B0, ℓ = 11, 1, 1, 5
+        F = primefield(p)
+        A, B = F(A0), F(B0)
+        R, X = polynomial_ring(F, "X")
+        f = X^3 + A*X + B
+        ψ = S.divisionpolynomial(ℓ, A, B, R)
 
+        err = try
+            S.tracemodℓ(ℓ, p, R(A), X, f, ψ)
+            nothing
+        catch e
+            e
+        end
+        @test err isa S.NotInvertible
+        if err isa S.NotInvertible
+            @test 0 < degree(err.g) < degree(ψ)
+            ψ = err.g * inv(leading_coefficient(err.g))
+            tl, _ = S.tracemodℓ(ℓ, p, R(A), X, f, ψ)
+            t = p + 1 - bruteforce(A, B)
+
+            @test mod(tl, ℓ) == mod(t, ℓ)
+            @test S.schoof(A0, B0, p) == bruteforce(A, B)
+        end
+    end
     @testset "trace_mod_l cases" begin
         seen = Set{Symbol}()
-        for p in (11, 13, 17, 19, 23), A in 0:p-1, B in 0:p-1
+        for p in (11, 13, 17, 19, 23), A in 0:(p-1), B in 0:(p-1)
             F = primefield(p)
             iszero(4F(A)^3 + 27F(B)^2) && continue
             t = p + 1 - bruteforce(F(A), F(B))
@@ -172,9 +256,8 @@ primefield(p) = finite_field(p, 1, "a")[1]
         # π²P = +[q̄]P forces t² ≡ 4q̄, so :nonresidue is only a defensive guard
         @test seen == Set([:pi2_is_minus_q, :residue, :generic])
     end
-
     @testset "sqrtmod" begin
-        for ℓ in (3, 5, 7, 11, 13), a in 1:ℓ-1
+        for ℓ in (3, 5, 7, 11, 13), a in 1:(ℓ-1)
             if powermod(a, (ℓ - 1) ÷ 2, ℓ) == 1
                 @test S.sqrtmod(a, ℓ)^2 % ℓ == a
             else
