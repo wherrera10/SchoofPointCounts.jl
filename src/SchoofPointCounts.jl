@@ -16,8 +16,8 @@ export schoof
 
 
 """
-    schoof(A, B, q) -> Integer
-    schoof(A::FinFieldElem, B::FinFieldElem) -> Integer
+    schoof(A, B, q) :: Integer
+    schoof(A::FinFieldElem, B::FinFieldElem) :: Integer
 
 Return `#E(Fq)` for `y^2 = x^3 + A*x + B`.
 """
