@@ -20,7 +20,7 @@ export schoof
 
 Return `#E(Fq)` for `y^2 = x^3 + A*x + B`.
 """
-function schoof(A::Integer, B::Integer, q::Integer)
+function schoof(A::Integer, B::Integer, q::Integer)::Integer
     q > 3 || throw(ArgumentError("field order must exceed 3"))
     fac = Primes.factor(q)
     length(fac) == 1 || throw(ArgumentError("q = $q must be a prime power"))
@@ -32,7 +32,7 @@ function schoof(A::Integer, B::Integer, q::Integer)
     return schoof(Fq(A), Fq(B))
 end
 
-function schoof(A::FinFieldElem, B::FinFieldElem)
+function schoof(A::FinFieldElem, B::FinFieldElem)::Integer
     Fq = parent(A)
     parent(B) == Fq || throw(ArgumentError("A and B must lie in the same field"))
     p = BigInt(characteristic(Fq))
