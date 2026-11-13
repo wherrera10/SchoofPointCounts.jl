@@ -1,7 +1,7 @@
 name = "SchoofPointCounts"
 uuid = "748343be-e7b7-45ce-877f-4f505341fdd8"
 authors = ["William Herrera <wherrera@alahonua.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"
