@@ -16,10 +16,32 @@ export schoof
 
 
 """
-    schoof(A, B, q) :: Integer
-    schoof(A::FinFieldElem, B::FinFieldElem) :: Integer
+    schoof(A, B, q)::Integer # All arguments are handled as integers
+    schoof(A::Nemo.FinFieldElem, B::Nemo.FinFieldElem)::Integer # Arguments are Nemo.FinFieldElem
 
 Return `#E(Fq)` for `y^2 = x^3 + A*x + B`.
+
+Both methods return the number of points on the curve
+y^2 = x^3 + A*x + B
+over a finite field. The integer method takes a prime-power field order integer
+q = p^k
+and integer coefficients A and B, which are interpreted in the prime subfield.
+The two-argument method takes coefficients from the same existing Nemo finite field.
+The field characteristic must be greater than 3, and the curve must be nonsingular,
+otherwise an `ArgumentError` is thrown.
+
+For example, to count the points on elliptic curve
+y^2 = x^3 + x + 1
+with prime p = 5 and k = 1, so that q is 5, running in the REPL:
+
+julia> using SchoofPointCounts
+
+julia> schoof(1, 1, 5)
+9
+
+Note that the return value is the number of points on the projective elliptic curve.
+The curve's affine points are supplemented by the single point at infinity,
+so the point at infinity is included in the returned count.
 """
 function schoof(A::Integer, B::Integer, q::Integer)::Integer
     q > 3 || throw(ArgumentError("field order must exceed 3"))
@@ -27,7 +49,7 @@ function schoof(A::Integer, B::Integer, q::Integer)::Integer
     length(fac) == 1 || throw(ArgumentError("q = $q must be a prime power"))
     p, k = first(fac)
     p > 3 || throw(ArgumentError(
-        "this implementation requires field characteristic greater than 3"
+        "this implementation requires field characteristic greater than 3",
     ))
     Fq = finite_field(p, k, "a")[1]
     return schoof(Fq(A), Fq(B))
@@ -39,7 +61,7 @@ function schoof(A::FinFieldElem, B::FinFieldElem)::Integer
     p = BigInt(characteristic(Fq))
     q = BigInt(order(Fq))
     p > 3 || throw(ArgumentError(
-        "this implementation requires field characteristic greater than 3"
+        "this implementation requires field characteristic greater than 3",
     ))
     iszero(4A^3 + 27B^2) &&
         throw(ArgumentError("the curve is singular (zero discriminant)"))
@@ -48,7 +70,7 @@ function schoof(A::FinFieldElem, B::FinFieldElem)::Integer
     f = X^3 + A*X + B
     S, _ = auxiliaryprimes(p, q)
     g = gcd(powermod(X, q, f) - X, f)
-    congruences = Tuple{Int,Int}[(2, isone(g) ? 1 : 0)]
+    congruences = Tuple{Int, Int}[(2, isone(g) ? 1 : 0)]
 
     for ℓ in S
         ψ = divisionpolynomial(ℓ, A, B, R)
@@ -132,7 +154,7 @@ Raised when an element is not invertible modulo `ψ`. `g` stores the gcd
 that identifies a nontrivial factor, or `ψ` when the residue is zero.
 """
 struct NotInvertible <: Exception
-    g
+    g::Any
 end
 
 function Base.showerror(io::IO, e::NotInvertible)
@@ -323,7 +345,7 @@ function divisionpolynomial(ℓ, A, B, R)
     g[3] = R(2)
     g[4] = 3X^4 + 6a*X^2 + 12b*X - a^2
     g[5] = 4*(X^6 + 5a*X^4 + 20b*X^3 - 5a^2*X^2 -
-        4a*b*X - 8b^2 - a^3)
+              4a*b*X - 8b^2 - a^3)
     G(n) = g[n+1]
 
     for n in 5:ℓ
@@ -334,7 +356,7 @@ function divisionpolynomial(ℓ, A, B, R)
             g[n+1] = iseven(m) ? f2*t1 - t2 : t1 - f2*t2
         else
             g[n+1] = G(m) *
-                (G(m+2)*G(m-1)^2 - G(m-2)*G(m+1)^2) * half
+                     (G(m+2)*G(m-1)^2 - G(m-2)*G(m+1)^2) * half
         end
     end
     return G(ℓ)
