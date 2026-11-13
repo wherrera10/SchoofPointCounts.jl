@@ -1,5 +1,9 @@
 # SchoofPointCounts
 
+[![Documentation Status](https://img.shields.io/badge/docs-latest-blue.svg)](https://wherrera10.github.io/SchoofPointCounts.jl/)
+[![CI](https://github.com/wherrera10/SchoofPointCounts.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/wherrera10/SchoofPointCounts.jl/actions/workflows/CI.yml)
+
+
 SchoofPointCounts implements Schoof's algorithm for counting points on elliptic
 curves over finite fields, using Nemo.jl.
 
