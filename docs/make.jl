@@ -1,6 +1,6 @@
 using Documenter, SchoofPointCounts
 
-DocMeta.setdocmeta!(RxNav, :DocTestSetup, :(using SchoofPointCounts); recursive=true)
+DocMeta.setdocmeta!(SchoofPointCounts, :DocTestSetup, :(using SchoofPointCounts); recursive=true)
 
 makedocs(;
     modules=[SchoofPointCounts],
