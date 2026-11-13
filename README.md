@@ -30,7 +30,7 @@ Note that the return value is the number of points on the projective elliptic cu
 
 ## Ecosystem notes
 
-Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code includes Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl uses calls to the PARI library to provide a call to a Schoof–Atkin–Elkies algorithm for its order() function.
+Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code includes Frobenius computations used in Schoof–Atkin–Elkies point counting, but that is not the same as the general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl uses calls to the PARI library to provide a call to a Schoof–Atkin–Elkies algorithm for its order() function. Hecke.jl, part of the OSCAR project, uses a linear algebra-based general algorithm for its order() function.
 
 ## Installation
 
