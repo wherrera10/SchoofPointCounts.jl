@@ -1,6 +1,6 @@
 """
-    This test file runs the code against precomputed known values. For further testing, if Rust is
-    installed, tests comparing against the puremp Rust implementation will also run.
+    This test file runs the code against a brute force algorithm or against precomputed known values. 
+    If Rust is installed, tests comparing the function against the puremp Rust crate will also run.
 """
 
 using Test
