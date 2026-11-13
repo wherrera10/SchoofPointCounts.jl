@@ -4,7 +4,7 @@ SchoofPointCounts implements Schoof's algorithm for counting points on elliptic
 curves over finite fields, using Nemo.jl.
 
 
-This package exports a single function. `schoof`, with two methods:
+This package exports a single function: `schoof`, with two methods:
 
 The first method takes three integer arguments, and returns an Int or a BigInt, depending on the size of the return value:
 ```julia
