@@ -46,5 +46,6 @@ Requires Julia 1.10 or later, plus Primes.jl and [Nemo.jl](https://github.com/Ne
 
 ## Functions Reference
 
+@autodocs
 Modules = [SchoofPointCounts]
 
