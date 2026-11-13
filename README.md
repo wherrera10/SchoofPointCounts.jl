@@ -21,7 +21,7 @@ The second method assumes the user has defined a finite field in Nemo.jl and tak
 schoof(A::Nemo.FinFieldElem, B::Nemo.FinFieldElem)::Integer # Both arguments are Nemo.FinFieldElem type values
 ```
 
-Both methods return and integer (either Int or if too large for Int a BigInt) which is the number of points on the curve
+Both methods return an integer (either Int or if too large for Int a BigInt) which is the number of points on the curve
 `y^2 = x^3 + A*x + B` 
 over a finite field. The integer method takes a prime-power field order integer 
 `q = p^k` 
