@@ -3,13 +3,27 @@
 SchoofPointCounts implements Schoof's algorithm for counting points on elliptic
 curves over finite fields, using Nemo.jl.
 
+
+This package exports a single function. `schoof`, with two methods:
+
+The first method takes three integer arguments, and returns an Int or a BigInt, depending on the size of the return value:
 ```julia
 schoof(A, B, q)::Integer # All arguments are handled as integers
+```
+
+The second method assumes the user has defined a finite field in Nemo.jl and takes two Nemo.FinFieldElem values in that same field:
+
+```julia
 schoof(A::Nemo.FinFieldElem, B::Nemo.FinFieldElem)::Integer # Both arguments are Nemo.FinFieldElem type values
 ```
 
-Both methods return the number of points on the curve
-`y^2 = x^3 + A*x + B` over a finite field. The integer method takes a prime-power field order integer `q = p^k` and integer coefficients `A` and `B`, which are interpreted in the prime subfield. The two-argument method takes coefficients from the same existing Nemo finite field. The field characteristic must be greater than 3, and the curve must be nonsingular, or an argument error will be thrown.
+Both methods return and integer (either Int or if too large for Int a BigInt) which is the number of points on the curve
+`y^2 = x^3 + A*x + B` 
+over a finite field. The integer method takes a prime-power field order integer 
+`q = p^k` 
+and integer coefficients `A` and `B`, which are interpreted in the prime subfield. The two-argument method takes coefficients
+from the same existing Nemo finite field. The field characteristic must be greater than 3, and the curve must be nonsingular,
+or an argument error will be thrown.
 
 For example, to count the points on elliptic curve
 
