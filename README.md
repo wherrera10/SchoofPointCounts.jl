@@ -48,7 +48,7 @@ Note that the return value is the number of points on the projective elliptic cu
 
 ## Ecosystem notes
 
-Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code includes Frobenius computations used in Schoof–Atkin–Elkies (SAE) point counting, but that is not the same as the general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl may use calls to the SAE code in the PARI library or to Hecke.jl for its order() function. Hecke.jl, part of the OSCAR project, uses a linear algebra-based general algorithm for its order() function. For orders well over a million, Hecke.jl's order() and schoof() benchmark in the same range when calculating point counts on typical elliptic curves, with Hecke.jl, once its finite fields are pre-constructed, often faster by 10% when compared to schoof()'s integer argument method.
+Nemo.jl does include elliptic-curve research code, as does the separate EllipticCurves.jl project. Nemo's research code includes Frobenius computations used in Schoof–Atkin–Elkies (SAE) point counting, but that is not the same as the general-purpose Schoof implementation of `schoof` implemented here. OSCAR.jl may use calls to the SAE code in the PARI library or to Hecke.jl for its order() function. Hecke.jl, part of the OSCAR project, uses a linear algebra-based general algorithm for its order() function. Benchmarking suggests Hecke.jl is 10 to 40% faster than schoof() for integers from 16 to 96 bits, but that as big integers expand past 100 bits in size, Hecke.jl seems to slow more than schoof(), so that, with cryptographically significant random p curves, schoof() is often, but not always, faster than Hecke.jl.
 
 ## Installation
 
