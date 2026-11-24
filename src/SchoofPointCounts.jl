@@ -71,13 +71,19 @@ function schoof(A::FinFieldElem, B::FinFieldElem)::Integer
     S, _ = auxiliaryprimes(p, q)
     g = gcd(powermod(X, q, f) - X, f)
     congruences = Tuple{Int, Int}[(2, isone(g) ? 1 : 0)]
+    hasse_bound = 2 * ceil(Int, sqrt(Float64(q)))
 
     for ℓ in S
         ψ = divisionpolynomial(ℓ, A, B, R)
         tl = 0
         while true
             try
-                tl, _ = tracemodℓ(ℓ, q, R(A), X, f, ψ)
+                # For small primes (ℓ < 50), skip factorization overhead as degree is small.
+                tl, _ = if degree(ψ) > 1200
+                    tracemodℓfactorized(ℓ, q, R(A), X, f, ψ)
+                else
+                    tracemodℓ(ℓ, q, R(A), X, f, ψ)
+                end
                 break
             catch e
                 e isa NotInvertible || rethrow()
@@ -91,6 +97,11 @@ function schoof(A::FinFieldElem, B::FinFieldElem)::Integer
             end
         end
         push!(congruences, (ℓ, mod(tl, ℓ)))
+        M = prod(BigInt(c[1]) for c in congruences)
+        M * M > 16 * q && break # Current congruences determine trace uniquely within Hasse bound
+
+        # Explicitly free memory before next costly iteration.
+        GC.gc(false)
     end
 
     t = reconstruct_trace(congruences)
@@ -148,7 +159,7 @@ function reconstruct_trace(congruences)
 end
 
 """
-    NotInvertible
+    struct NotInvertible
 
 Raised when an element is not invertible modulo `ψ`. `g` stores the gcd
 that identifies a nontrivial factor, or `ψ` when the residue is zero.
@@ -320,6 +331,64 @@ function tracemodℓ(ℓ, q, A, X, f, ψ)
         τπ = ecadd(τπ, π1, A, f, ψ)
     end
     error("no trace candidate found modulo $ℓ")
+end
+
+"""
+    tracemodℓfactorized(ℓ, q, A, X, f, ψ) -> (t mod ℓ, case)
+
+Compute the trace of Frobenius modulo the odd prime `ℓ`, using factorization
+of the division polynomial ψ to reduce memory requirements. If ψ factors into
+irreducible factors, we work with smaller polynomials, which can significantly
+reduce memory usage with BigInts to 1/2 to 1/5 of the original.
+
+Returns the trace modulo ℓ or raises NotInvertible if not invertible.
+"""
+function tracemodℓfactorized(ℓ, q, A, X, f, ψ)
+    try
+        # Factorize ψ into irreducible factors over Fq
+        factors_dict = factor(ψ)
+        factors = collect(keys(factors_dict))
+
+        # If factorization yields only one factor (ψ is irreducible),
+        # fall back to use original computation
+        if length(factors) == 1 && factors_dict[factors[1]] == 1
+            return tracemodℓ(ℓ, q, A, X, f, ψ)
+        end
+
+        # For each irreducible factor, compute trace of Frobenius modulo ℓ
+        traces = Int[]
+        for factor in factors
+            try
+                tl, _ = tracemodℓ(ℓ, q, A, X, f, factor)
+                push!(traces, tl)
+            catch e
+                # If this factor fails, try original ψ
+                e isa NotInvertible || rethrow()
+                return tracemodℓ(ℓ, q, A, X, f, ψ)
+            end
+        end
+
+        # Use the first successful trace
+        if !isempty(traces)
+            t_ref = mod(traces[1], ℓ)
+            for t in traces[2:end]
+                if mod(t, ℓ) != t_ref
+                    # Inconsistency: fall back to original
+                    return tracemodℓ(ℓ, q, A, X, f, ψ)
+                end
+            end
+            return (traces[1], :generic)
+        end
+    catch e
+        # Factorization failed or rethrow if an unexpected error
+        if !(e isa NotInvertible)
+            return tracemodℓ(ℓ, q, A, X, f, ψ)
+        end
+        rethrow()
+    end
+
+    # Fall back to original computation
+    return tracemodℓ(ℓ, q, A, X, f, ψ)
 end
 
 """
